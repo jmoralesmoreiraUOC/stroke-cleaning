@@ -1,6 +1,6 @@
 ---
-title: "Resolución PRA 2"
-author: "Alexiss Mejía Borja - Julio Morales"
+title: "'Tipología y ciclo de vida de los datos: PRA2 - ¿Cómo realizar la limpieza y análisis de datos?'"
+author: "Autores: Alexiss Mejía Borja - Julio Morales"
 date: '`r format(Sys.Date(),"%e de %B, %Y")`'
 output:
   pdf_document:
@@ -8,7 +8,7 @@ output:
   word_document: default
   html_document:
     toc: yes
-bibliography: scholar.bib
+
 ---  
     
 
@@ -66,33 +66,33 @@ En esta práctica se desarrollan las siguientes competencias:
 
 ## 2.1 Descripción del dataset
 
-Se utiliza el set de datos de pacientes hepáticos de India del siguiente link https://www.kaggle.com/datasets/fedesoriano/stroke-prediction-dataset, el cual contiene 12 variables y 5110 registros, así como contiene 2 variables numéricas, 8 categóricas, 1 binaria objetivo y 1 identificador único.
+Se utiliza el set de datos de pacientes de accidente cerebrovasculares del siguiente link https://www.kaggle.com/datasets/fedesoriano/stroke-prediction-dataset, el cual contiene 12 variables y 5110 registros, así como contiene 2 variables numéricas, 8 categóricas, 1 binaria objetivo y 1 identificador único.
 
 A continuación se definen las variables de estudio:
 
 **DIMENSIÓN PACIENTE**
 
-+ **gender** [factor] Género del paciente. Male, Female, Other 
-+ **age** [int] Edad del paciente
-+ **hypertension** [factor] 0 si el paciente no tiene hipertensión, 1 si el paciente tiene hipertensión
-+ **heart_disease** [factor] 0 si el paciente no tiene ninguna enfermedad cardíaca, 1 si el paciente tiene una enfermedad cardíaca
-+ **ever_married** [factor] Estado civil si alguna se encuentra casado. No, Yes
-+ **work_type**  [factor] Tipo de trabajo. children, Govt_jov, Never_worked, Private o Self-employed
-+ **Residence_type** [factor] Tipo residencia. Urban, Rural
++ **gender** [chr] Género del paciente. Male, Female, Other 
++ **age** [num] Edad del paciente
++ **hypertension** [num] 0 si el paciente no tiene hipertensión, 1 si el paciente tiene hipertensión
++ **heart_disease** [num] 0 si el paciente no tiene ninguna enfermedad cardíaca, 1 si el paciente tiene una enfermedad cardíaca
++ **ever_married** [chr] Estado civil si alguna se encuentra casado. No, Yes
++ **work_type**  [chr] Tipo de trabajo. children, Govt_jov, Never_worked, Private o Self-employed
++ **Residence_type** [chr] Tipo residencia. Urban, Rural
 + **avg_glucose_level** [num] Nivel promedio de glucosa en sangre
 + **bmi** [num] Índice de masa corporal
-+ **smoking_status** [factor] Tipo de fumador. formerly smoked, never smoked, smokes or Unknown (información no disponible)
-+ **stroke** [factor]  1 si el paciente tuvo un accidente cerebrovascular o 0 si no
++ **smoking_status** [chr] Tipo de fumador. formerly smoked, never smoked, smokes or Unknown (información no disponible)
++ **stroke** [num]  1 si el paciente tuvo un accidente cerebrovascular o 0 si no
 
 
 ## 2.2. Importancia y objetivos de los análisis
 
-Según la OMS, los accidentes cardiovasculares representan la 2da causa de muertes a nivel mundial, siendo el 11% de los casos se vinculan a esta causa. La importancia del set de datos elegido radica en identificar  que variables influyen en mayor medida en la probabilidad de que un paciente pueda tener un accidente cerebrovascular en función de las variables de interés presentadas.
+Según la OMS, los accidentes cerebrovascular representan la 2da causa de muertes a nivel mundial, siendo el 11% de los casos se vinculan a esta causa. La importancia del set de datos elegido radica en identificar  que variables influyen en mayor medida en la probabilidad de que un paciente pueda tener un accidente cerebrovascular en función de las variables de interés presentadas.
 
 El objetivo es realizar la limpieza y análisis del set de datos para un modelo  de regresión logística, en base a la variable dependiente "stroke", siendo 1 si el paciente tuvo o 0 si no un accidente cardiovascular, de manera de obtener las variables influyentes en un accidente cerebrovascular. Como objetivos secundarios se definen:
 
 - Selección de datos de interés y definición del origen de datos
-- Preparación de datos para el análisis poosterior, realizando limpieza de datos, transformación de datos t tratamiento de outliers.
+- Preparación de datos para el análisis posterior, realizando limpieza de datos, transformación de datos t tratamiento de outliers.
 - Obtener conocimiento a partir del análisis de las variables, así como insight relevantes para el entendimiento y validación del instrumento.
 - Medir la calidad del modelo obtenido.
 - Interpretar el modelo para otorgar usabilidad a los usarios.
@@ -110,9 +110,7 @@ Adocionalmente se va a examinar los valores resumen de cada tipo de variable.
 ```{r lectura}
 
 # Lectura del archivo seleccionado en  formato csv 
-healthcare<- 
-  read_delim("C:/MAESTRIA/TERCER_SEMESTRE/TIPOLOGIA_CICLO_VIDA_DATOS/PRA2/healthcare-dataset-stroke-data.csv", 
-                        delim = ";", escape_double = FALSE, trim_ws = TRUE)
+healthcare<- read_delim("healthcare-dataset-stroke-data.csv", delim = ";", escape_double = FALSE, trim_ws = TRUE)
 
 head(healthcare,n=4L)
 
@@ -132,9 +130,8 @@ str(healthcare)
 ```
 
 Se puede notar la existencia de variables de tipo numericas como de tipo categóricas, adicionalmente se puede notar la existencia
-de valores atípicos en el atriburto denominado bmi (índice de masa coporal), para verificar la existencia de más valores perdidos
-se ejecuta el siguiente proceso:
-
+de valores atípicos en el atributo denominado bmi (índice de masa coporal), para verificar la existencia de más valores perdidos
+se ejecutacutarán los procesos respectivos en las siguientes secciones.
 
 
 ## *2.3.1. Normalización de los datos cualitativos*
@@ -188,7 +185,7 @@ hist(healthcare$bmi, main = "Histrograma de bmi",
 
 Un hecho particular sucede con la edad ya para ser un dataset relacionado los ataques cardiacos la distribución de la edad refleja un grupo considerable de individuos que se encuentran por debajo de los 10 años de edad incluso infantes tal y como  se puede ver el summary de este atributo, cabe aquí la cuestión de si es necesario normalizar la edad de los individuos o simplemente realizar una selección de datos que son de mayor interés y lógica para el presente análisis.
 
-En el caso de la vaiable relacionada con el promedio del nivel de la glucosa tanto el  resúmen como los graficos  no muestra indicios de que requieran un tratamiento de normalización, sin embargo como se advirtio en la anterior sección el bmi presenta valores perdidos, hecho que lo tratara en la siguiente sección.
+En el caso de la vaiable relacionada con el promedio del nivel de la glucosa tanto el  resúmen como los gráficos  no muestra indicios de que requieran un tratamiento de normalización, sin embargo como se advirtio en la anterior sección el bmi presenta valores perdidos, hecho que lo tratara en la siguiente sección.
 
 
 ## *2.3.3. Selección de datos de interés (reducción de cantidad)*
@@ -524,7 +521,5 @@ Un hecho particular es lo que sucede con aquellos pacientes que trabajan el dife
 + Gibergans, J. (2017). Regresión lineal múltiple. Material UOC.
 
 + Maté, L. Pérez, D. Calvo M.  (2017).Introducción a la limpieza y análisis de los datos. Material UOC.
-
-
 
 
